@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:neat_tip/widgets/peek_and_pop_able.dart';
 

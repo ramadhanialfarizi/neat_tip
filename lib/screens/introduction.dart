@@ -11,10 +11,6 @@ class Introduction extends StatefulWidget {
 }
 
 class _IntroductionState extends State<Introduction> {
-  bool _isPermissionsAllowed = false;
-  bool _isLoggedIn = false;
-  bool _isVehicleAdded = false;
-  bool _isPageSuspended = false;
   double _maxPage = 0;
   int _pageIndex = 0;
 
@@ -64,7 +60,7 @@ class _IntroductionState extends State<Introduction> {
 
   @override
   Widget build(BuildContext context) {
-    log('_isVehicleAdded $_isVehicleAdded');
+    // log('_isVehicleAdded $_isVehicleAdded');
     // log('_isLoggedIn $_isLoggedIn');
 
     return SafeArea(
@@ -74,7 +70,7 @@ class _IntroductionState extends State<Introduction> {
             child: Text('hehehe'),
           ),
           Center(
-            child: _isLoggedIn
+            child: _pageIndex <= _maxPage
                 ? null
                 : ElevatedButton(
                     onPressed: navigateToAuthPage,
@@ -82,7 +78,7 @@ class _IntroductionState extends State<Introduction> {
                   ),
           ),
           Center(
-            child: _isPermissionsAllowed
+            child: _pageIndex <= _maxPage
                 ? null
                 : ElevatedButton(
                     onPressed: navigatoToPermissionPage,
@@ -90,7 +86,7 @@ class _IntroductionState extends State<Introduction> {
                   ),
           ),
           Center(
-            child: _isVehicleAdded
+            child: _pageIndex <= _maxPage
                 ? null
                 : ElevatedButton(
                     onPressed: navigateToAddVehiclePage,

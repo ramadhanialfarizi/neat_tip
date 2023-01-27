@@ -1,5 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+// ignore_for_file: library_private_types_in_public_api
+
 part of 'database.dart';
 
 // **************************************************************************
@@ -10,14 +12,12 @@ part of 'database.dart';
 class $FloorNeatTipDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  // ignore: library_private_types_in_public_api
   static _$NeatTipDatabaseBuilder databaseBuilder(String name) =>
       _$NeatTipDatabaseBuilder(name);
 
   /// Creates a database builder for an in memory database.
   /// Information stored in an in memory database disappears when the process is killed.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  // ignore: library_private_types_in_public_api
   static _$NeatTipDatabaseBuilder inMemoryDatabaseBuilder() =>
       _$NeatTipDatabaseBuilder(null);
 }
@@ -65,13 +65,15 @@ class _$NeatTipDatabase extends NeatTipDatabase {
 
   VehicleDao? _vehicleDaoInstance;
 
+  TransactionsDao? _transactionsDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -88,6 +90,8 @@ class _$NeatTipDatabase extends NeatTipDatabase {
       onCreate: (database, version) async {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Vehicle` (`id` TEXT NOT NULL, `createdAt` TEXT NOT NULL, `ownerId` TEXT NOT NULL, `plate` TEXT NOT NULL, `brand` TEXT NOT NULL, `model` TEXT NOT NULL, `ownerName` TEXT NOT NULL, `imgSrcPhotos` TEXT NOT NULL, `wheel` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `Transactions` (`id` TEXT NOT NULL, `customerUserId` TEXT NOT NULL, `timeRequested` TEXT NOT NULL, `timeFinished` TEXT, `value` INTEGER, `service` TEXT, `status` TEXT, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -98,6 +102,12 @@ class _$NeatTipDatabase extends NeatTipDatabase {
   @override
   VehicleDao get vehicleDao {
     return _vehicleDaoInstance ??= _$VehicleDao(database, changeListener);
+  }
+
+  @override
+  TransactionsDao get transactionsDao {
+    return _transactionsDaoInstance ??=
+        _$TransactionsDao(database, changeListener);
   }
 }
 
@@ -165,6 +175,69 @@ class _$VehicleDao extends VehicleDao {
 
   @override
   Future<void> insertVehicle(Vehicle vehicle) async {
-    await _vehicleInsertionAdapter.insert(vehicle, OnConflictStrategy.ignore);
+    await _vehicleInsertionAdapter.insert(vehicle, OnConflictStrategy.abort);
+  }
+}
+
+class _$TransactionsDao extends TransactionsDao {
+  _$TransactionsDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database, changeListener),
+        _transactionsInsertionAdapter = InsertionAdapter(
+            database,
+            'Transactions',
+            (Transactions item) => <String, Object?>{
+                  'id': item.id,
+                  'customerUserId': item.customerUserId,
+                  'timeRequested': item.timeRequested,
+                  'timeFinished': item.timeFinished,
+                  'value': item.value,
+                  'service': item.service,
+                  'status': item.status
+                },
+            changeListener);
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Transactions> _transactionsInsertionAdapter;
+
+  @override
+  Future<List<Transactions>> findAllTransactions() async {
+    return _queryAdapter.queryList('SELECT * FROM Transactions',
+        mapper: (Map<String, Object?> row) => Transactions(
+            id: row['id'] as String,
+            customerUserId: row['customerUserId'] as String,
+            service: row['service'] as String?,
+            timeRequested: row['timeRequested'] as String,
+            timeFinished: row['timeFinished'] as String?,
+            value: row['value'] as int?,
+            status: row['status'] as String?));
+  }
+
+  @override
+  Stream<Transactions?> findTransactionsById(int id) {
+    return _queryAdapter.queryStream('SELECT * FROM Transactions WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => Transactions(
+            id: row['id'] as String,
+            customerUserId: row['customerUserId'] as String,
+            service: row['service'] as String?,
+            timeRequested: row['timeRequested'] as String,
+            timeFinished: row['timeFinished'] as String?,
+            value: row['value'] as int?,
+            status: row['status'] as String?),
+        arguments: [id],
+        queryableName: 'Transactions',
+        isView: false);
+  }
+
+  @override
+  Future<void> insertTransactions(Transactions transactions) async {
+    await _transactionsInsertionAdapter.insert(
+        transactions, OnConflictStrategy.abort);
   }
 }

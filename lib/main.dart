@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:camera/camera.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:neat_tip/bloc/camera.dart';
 import 'package:neat_tip/bloc/route_observer.dart';
+import 'package:neat_tip/bloc/transaction_list.dart';
 import 'package:neat_tip/bloc/vehicle_list.dart';
 import 'package:neat_tip/db/database.dart';
 import 'package:neat_tip/screens/home.dart';
@@ -36,19 +35,25 @@ class _MyAppState extends State<MyApp> {
   late List<CameraDescription> cameras;
   late NeatTipDatabase database;
   late VehicleListCubit vehicleListCubit;
+  late TransactionsListCubit transactionsListCubit;
   late CameraCubit cameraCubit;
   late RouteObserverCubit routeObserverCubit;
 
   Future<void> initializeComponents() async {
     // log('panggil');
     await AppFirebase.initializeFirebase();
-    await FirebaseAuth.instance.signOut();
+    // await FirebaseAuth.instance.signOut();
     isNeedPermission = await checkPermission();
     user = FirebaseAuth.instance.currentUser;
     database =
         await $FloorNeatTipDatabase.databaseBuilder('database.db').build();
+
     vehicleListCubit.initializeDB(database);
     vehicleListCubit.pullDataFromDB();
+
+    transactionsListCubit.initializeDB(database);
+    transactionsListCubit.pullDataFromDB();
+
     cameras = await availableCameras();
     cameraCubit.setCameraList(cameras);
     routeObserverCubit.setRouteObserver(routeObserver);
@@ -70,6 +75,7 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
     vehicleListCubit = VehicleListCubit();
+    transactionsListCubit = TransactionsListCubit();
     cameraCubit = CameraCubit();
     routeObserverCubit = RouteObserverCubit();
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
@@ -85,6 +91,8 @@ class _MyAppState extends State<MyApp> {
               create: (BuildContext context) => routeObserverCubit),
           BlocProvider<VehicleListCubit>(
               create: (BuildContext context) => vehicleListCubit),
+          BlocProvider<TransactionsListCubit>(
+              create: (BuildContext context) => transactionsListCubit),
         ],
         child: MaterialApp(
             title: 'Neat Tip',
