@@ -43,12 +43,6 @@ class _PermissionWindowState extends State<PermissionWindow> {
         });
       }
     }
-
-    log('widget.onAllowedAll ${widget.onAllowedAll}');
-    if (widget.onAllowedAll != null && isAllAllowed) {
-      widget.onAllowedAll!();
-    }
-
     setState(() {
       isChecking = false;
     });
@@ -63,7 +57,12 @@ class _PermissionWindowState extends State<PermissionWindow> {
   }
 
   returnToApp() {
-    Navigator.pop(context, isAllAllowed);
+    log('widget.onAllowedAll ${widget.onAllowedAll}');
+    if (widget.onAllowedAll != null && isAllAllowed) {
+      widget.onAllowedAll!();
+    } else {
+      Navigator.pop(context, isAllAllowed);
+    }
   }
 
   @override

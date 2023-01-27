@@ -113,12 +113,14 @@ class _MyAppState extends State<MyApp> {
                     if (user == null) {
                       return const Introduction();
                     } else if (!isNeedPermission) {
-                      return PermissionWindow(
-                        onAllowedAll: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/home', (route) => false);
-                        },
-                      );
+                      return Builder(builder: (context) {
+                        return PermissionWindow(
+                          onAllowedAll: () {
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, '/home', (route) => false);
+                          },
+                        );
+                      });
                     }
                     return const Home();
                   }
