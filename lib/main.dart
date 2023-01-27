@@ -83,45 +83,47 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-        providers: [
-          BlocProvider<CameraCubit>(
-              create: (BuildContext context) => cameraCubit),
-          BlocProvider<RouteObserverCubit>(
-              create: (BuildContext context) => routeObserverCubit),
-          BlocProvider<VehicleListCubit>(
-              create: (BuildContext context) => vehicleListCubit),
-          BlocProvider<TransactionsListCubit>(
-              create: (BuildContext context) => transactionsListCubit),
-        ],
-        child: MaterialApp(
-            title: 'Neat Tip',
-            navigatorObservers: [routeObserver],
-            theme: getThemeData(),
-            onGenerateRoute: routeGenerator,
-            home: FutureBuilder(
-              future: initializeComponents(),
-              builder: (context, snapshot) {
-                // FlutterNativeSplash.remove();
-                // return LoadingWindow();
-                if (snapshot.connectionState != ConnectionState.done) {
-                  //  FlutterNativeSplash.remove();
-                  return const LoadingWindow();
-                } else {
-                  FlutterNativeSplash.remove();
-                  if (user == null) {
-                    return const Introduction();
-                  } else if (!isNeedPermission) {
-                    return PermissionWindow(
-                      onAllowedAll: () {
-                        Navigator.pushNamedAndRemoveUntil(
-                            context, '/home', (route) => false);
-                      },
-                    );
+    return FutureBuilder(
+        future: initializeComponents(),
+        builder: (context, snapshot) {
+          return MultiBlocProvider(
+              providers: [
+                BlocProvider<CameraCubit>(
+                    create: (BuildContext context) => cameraCubit),
+                BlocProvider<RouteObserverCubit>(
+                    create: (BuildContext context) => routeObserverCubit),
+                BlocProvider<VehicleListCubit>(
+                    create: (BuildContext context) => vehicleListCubit),
+                BlocProvider<TransactionsListCubit>(
+                    create: (BuildContext context) => transactionsListCubit),
+              ],
+              child: MaterialApp(
+                title: 'Neat Tip',
+                navigatorObservers: [routeObserver],
+                theme: getThemeData(),
+                onGenerateRoute: routeGenerator,
+                home: () {
+                  // FlutterNativeSplash.remove();
+                  // return LoadingWindow();
+                  if (snapshot.connectionState != ConnectionState.done) {
+                    //  FlutterNativeSplash.remove();
+                    return const LoadingWindow();
+                  } else {
+                    FlutterNativeSplash.remove();
+                    if (user == null) {
+                      return const Introduction();
+                    } else if (!isNeedPermission) {
+                      return PermissionWindow(
+                        onAllowedAll: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/home', (route) => false);
+                        },
+                      );
+                    }
+                    return const Home();
                   }
-                  return const Home();
-                }
-              },
-            )));
+                }(),
+              ));
+        });
   }
 }
