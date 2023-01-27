@@ -42,25 +42,21 @@ class _MyAppState extends State<MyApp> {
   Future<void> initializeComponents() async {
     // log('panggil');
     await AppFirebase.initializeFirebase();
-    // await FirebaseAuth.instance.signOut();
+    await FirebaseAuth.instance.signOut();
     isNeedPermission = await checkPermission();
     user = FirebaseAuth.instance.currentUser;
     database =
         await $FloorNeatTipDatabase.databaseBuilder('database.db').build();
-    vehicleListCubit = VehicleListCubit();
     vehicleListCubit.initializeDB(database);
     vehicleListCubit.pullDataFromDB();
-
     cameras = await availableCameras();
-    cameraCubit = CameraCubit();
     cameraCubit.setCameraList(cameras);
-
-    routeObserverCubit = RouteObserverCubit();
     routeObserverCubit.setRouteObserver(routeObserver);
   }
 
   Future<bool> checkPermission() async {
     bool isAllAllowed = true;
+
     for (var service in serviceList) {
       final Permission permission = service['type'];
       final status = await permission.status;
@@ -73,6 +69,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+    vehicleListCubit = VehicleListCubit();
+    cameraCubit = CameraCubit();
+    routeObserverCubit = RouteObserverCubit();
     FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   }
 
@@ -105,7 +104,12 @@ class _MyAppState extends State<MyApp> {
                   if (user == null) {
                     return const Introduction();
                   } else if (!isNeedPermission) {
-                    return const PermissionWindow();
+                    return PermissionWindow(
+                      onAllowedAll: () {
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, '/home', (route) => false);
+                      },
+                    );
                   }
                   return const Home();
                 }
