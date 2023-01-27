@@ -133,7 +133,7 @@ class _HomeState extends State<Home> with RouteAware {
                           child: PeekAndPopable(
                             child: ListTile(
                               // dense: true,
-                              leading: CircleAvatar(
+                              leading: const CircleAvatar(
                                 child: Icon(
                                   Icons.motorcycle,
                                 ),
